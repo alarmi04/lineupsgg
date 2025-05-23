@@ -1,0 +1,19 @@
+---
+import { getAgentBySlug } from "../../lib/mongo.js";
+
+const { slug } = Astro.params;
+
+const agent = await getAgentBySlug(slug);
+
+if (!agent) {
+  throw new Error(`Agent with slug "${slug}" not found`);
+}
+---
+
+<main class="container mx-auto p-5">
+  <div class="flex justify-end">
+    <a href="/" class="text-xl font-bold">Volver</a>
+  </div>
+  <h1 class="text-3xl font-bold text-center py-6">{agent.name}</h1>
+  <img src={agent.image} alt={agent.name} class="size-64 object-cover mx-auto border border-gray-200 rounded-lg" />
+</main>
