@@ -1,24 +1,29 @@
+// Importamos MongoClient de mongodb.
 import { MongoClient } from "mongodb";
 
-const uri = process.env.MONGO_URI; // Pon tu URI de conexión en .env
-console.log('MONGO_URI:', uri); // Debug log
+// Obtenemos la URI de la base de datos.
+const uri = process.env.MONGO_URI; 
+// console.log('MONGO_URI:', uri); Debug de la URI
 if (!uri) {
   throw new Error("MONGO_URI no está configurado en las variables de entorno");
 }
 
+// Creamos el cliente de MongoDB.
 const client = new MongoClient(uri);
 
+// Exportamos la función getAgents la cual coge todos los agentes de la base de datos.
 export async function getAgents() {
   try {
     await client.connect();
     const db = client.db("lineupsgg");
     const agents = await db.collection("agents").find().toArray();
-    // Transform MongoDB documents to the expected format
     return agents.map(agent => ({
-      name: agent.name,
-      role: agent.role,
-      image: agent.image,
-      slug: agent.slug
+      agente: agent.agente,
+      rol: agent.rol,
+      icono: agent.icono,
+      imagen: agent.imagen,
+      slug: agent.slug,
+      habilidades: agent.habilidades,
     }));
   } catch (error) {
     console.error("Error al obtener agentes:", error);
@@ -26,6 +31,7 @@ export async function getAgents() {
   }
 }
 
+// Exportamos la función getAgentBySlug la cual coge un agente por slug "nombre del agente".
 export async function getAgentBySlug(slug) {
   try {
     await client.connect();

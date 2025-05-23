@@ -1,53 +1,96 @@
 ---
+// Importamos la función getAgents.
+import { getAgents } from "../lib/mongo";
+
+// Interface para los agentes.
 interface Agent {
-  name: string;
+  agente: string;
+  slug: string;
+  icono: string;
+  imagen: string;
+  rol: string;
+  habilidades: string[];
 }
 
-const { agents = [] } = Astro.props as { agents?: Agent[] };
+// Obtenemos todos los agentes.
+const agents: Agent[] = await getAgents();
 ---
 
-<input
-  type="text"
-  id="agent-search"
-  placeholder="Buscar agente..."
-  class="w-full px-4 py-2 border border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500"
-/>
-
-<div id="agent-results" class="grid grid-cols-4 md:grid-cols-9 gap-4">
-  {
-    agents.map((agent: any) => (
-      <a
-        href={`/agent/${agent.slug}`}
-        class="agent-card rounded-lg border border-gray-200 mx-auto bg-red-300 hover:bg-red-600 transition-colors cursor-pointer hover:translate-y-[-5px]"
-        id={agent.slug}
-        data-name={agent.name.toLowerCase()}
-      >
-        <img
-          src={agent.image}
-          alt={agent.name}
-          class="w-full h-full object-cover"
-        />
-      </a>
-    ))
-  }
+<div class="container mx-auto p-5">
+  <!-- Dropdown de roles -->
+  <div class="flex justify-between items-center">
+    <!-- Buscador -->
+    <input
+      type="text"
+      id="agent-search"
+      placeholder="Buscar agente..."
+      class="w-full px-4 py-2 border border-gray-300 rounded-md mb-4"
+    />
+    <!-- Dropdown de roles -->
+    <select
+      name="Rol"
+      id="role-select"
+      class="mb-4 px-4 py-2 border border-gray-300 rounded-md"
+    >
+      <option value="" selected disabled>Selecciona un rol</option>
+      <option value="Iniciador">Iniciador</option>
+      <option value="Centinela">Centinela</option>
+      <option value="Controlador">Controlador</option>
+      <option value="Duelista">Duelista</option>
+      <option value="Todos">Todos</option>
+    </select>
+  </div>
+  <!-- Contenedor de agentes -->
+  <div id="agent-results" class="grid grid-cols-4 md:grid-cols-9 gap-4">
+    {
+      // Mapeamos todos los agentes.
+      agents.map((agent) => (
+        <a
+          href={`/agent/${agent.slug}`}
+          class="agent-card rounded-lg border border-gray-200 bg-red-300 hover:bg-red-600 transition-colors cursor-pointer hover:translate-y-[-5px]"
+          id={agent.slug}
+          data-agente={agent.agente}
+          data-rol={agent.rol}
+        >
+          <img
+            src={agent.icono}
+            alt={agent.agente}
+            class="w-full h-full object-cover"
+          />
+        </a>
+      ))
+    }
+  </div>
 </div>
+<!-- Script para filtrar por búsqueda y rol -->
+<script type="module" is:inline>
+  // Obtenemos los elementos del DOM.
+  const searchInput = document.getElementById("agent-search");
+  const roleSelect = document.getElementById("role-select");
+  const agentCards = document.querySelectorAll(".agent-card");
 
-<script>
-  const searchInput = document.getElementById(
-    "agent-search"
-  ) as HTMLInputElement;
-  const agentCards = document.querySelectorAll(
-    ".agent-card"
-  ) as NodeListOf<HTMLElement>;
+  // Función para filtrar los agentes.
+  function filterAgents() {
+    const searchTerm = searchInput?.value.toLowerCase() || "";
+    const selectedRole = roleSelect?.value || "";
 
-  if (searchInput) {
-    searchInput.addEventListener("input", () => {
-      const searchTerm = searchInput.value.toLowerCase();
+    // Recorremos todos los agentes.
+    agentCards.forEach((card) => {
+      const name = card.dataset.agente?.toLowerCase() || "";
+      const role = card.dataset.rol || "";
 
-      agentCards.forEach((card) => {
-        const name = card.dataset.name?.toLowerCase() || "";
-        card.style.display = name.includes(searchTerm) ? "block" : "none";
-      });
+      // Comparamos el nombre y el rol.
+      const matchesName = name.includes(searchTerm);
+      const matchesRole =
+        selectedRole === "Todos" ||
+        selectedRole === "" ||
+        role === selectedRole;
+
+      // Mostramos o ocultamos los agentes.
+      card.style.display = matchesName && matchesRole ? "block" : "none";
     });
   }
+  // Eventos de los inputs.
+  searchInput?.addEventListener("input", filterAgents);
+  roleSelect?.addEventListener("change", filterAgents);
 </script>
