@@ -43,3 +43,19 @@ export async function getAgentBySlug(slug) {
     throw error;
   }
 }
+
+export async function getMaps() {
+  try {
+    await client.connect();
+    const db = client.db("lineupsgg");
+    const maps = await db.collection("maps").find().toArray();
+    return maps.map(map => ({
+      mapa: map.mapa,
+      desc: map.desc,
+      imagenes: map.imagenes,
+    }));
+  } catch (error) {
+    console.error("Error al obtener mapas:", error);
+    throw error;
+  }
+}

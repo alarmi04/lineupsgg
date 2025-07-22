@@ -1,0 +1,61 @@
+---
+// Importaciones
+import Header from "../components/Header.astro";
+import { getMaps } from "../lib/mongo.js";
+import SwiperSlider from "../components/SwiperSlider.jsx";
+
+const maps = await getMaps();
+---
+
+<main>
+  <Header />
+  <div class="container mx-auto p-5">
+    <h1 class="text-3xl font-bold mb-4">Mapas</h1>
+    <p class="mb-8">
+      En este apartado encontrarás información sobre los mapas de Valorant.
+    </p>
+  </div>
+
+  {
+    maps.map((map, i) => (
+      <div class="container mx-auto p-4 md:p-5" id={`map-${i}`}>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <h2 class="text-xl md:text-2xl font-extrabold mb-2">{map.mapa}</h2>
+            <p class="mb-4">{map.desc}</p>
+          </div>
+          <div class="w-full">
+            <SwiperSlider images={map.imagenes} client:load />
+          </div>
+        </div>
+      </div>
+    ))
+  }
+</main>
+
+<style is:global>
+  .swiper-button-next,
+  .swiper-button-prev {
+    color: #fca5a5;
+    filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.3));
+    transition: color 0.3s ease;
+  }
+
+  .swiper-button-next:hover,
+  .swiper-button-prev:hover {
+    color: #dc2626;
+  }
+
+  .swiper-pagination-bullet {
+    background: #fca5a5;
+    opacity: 0.6;
+    transition:
+      background 0.3s ease,
+      opacity 0.3s ease;
+  }
+
+  .swiper-pagination-bullet-active {
+    background: #dc2626;
+    opacity: 1;
+  }
+</style>
